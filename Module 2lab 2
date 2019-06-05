@@ -1,0 +1,261 @@
+#include "pch.h"
+
+#include <iostream>
+
+
+
+using namespace std;
+
+
+
+int knut_morris_pratt(string str, string img);
+
+int boyer_moore(string str, string img);
+
+
+
+int main()
+
+{
+
+	string str = "Far over the Misty mountains cold";
+
+	string img = "r";
+
+	cout << boyer_moore(str, img) << endl;
+
+
+
+	return 0;
+
+}
+
+
+
+int knut_morris_pratt(string str, string img)
+
+{
+
+	int *table = new int[img.length()];
+
+	for (int i = 0; i < img.length(); i++)
+
+	{
+
+		table[i] = 0;
+
+		if (img[0] == img[i])
+
+			table[i] = -1;
+
+		else
+
+		{
+
+			for (int j = 1; j < i; j++)
+
+			{
+
+				bool flag = true;
+
+				for (int k = 0; k < j; k++)
+
+				{
+
+					if (img[k] != img[i - j + k])
+
+					{
+
+						flag = false;
+
+						break;
+
+					}
+
+				}
+
+				if (flag)
+
+					table[i]++;
+
+			}
+
+		}
+
+	}
+
+
+
+	unsigned int temp = 0, temp_first = 0;
+
+	for (int i = 0; i < str.length(); i++)
+
+	{
+
+		if (str[i] != img[temp])
+
+		{
+
+			i += table[temp] >= 0 ? table[temp] + 1 : -table[temp];
+
+			temp = 0;
+
+			temp_first = i + 1;
+
+		}
+
+		else
+
+		{
+
+			temp++;
+
+		}
+
+		if (temp == img.length() - 1)
+
+			return temp_first;
+
+	}
+
+	return -1;
+
+}
+
+
+
+int boyer_moore(string str, string img)
+
+{
+
+	int *table = new int[img.length()];
+
+	
+
+	for (int i = 0; i < img.length(); i++)
+
+		table[i] = 0;
+
+	table[0] = img.length();
+
+
+
+	char *temp_char = new char[img.length()];
+
+	temp_char[0] = img[img.length() - 1];
+
+	int counter = 1;
+
+
+
+	for (int i = 1; i < img.length(); i++)
+
+	{
+
+		bool flag = true;
+
+		for (int j = 0; j < counter; j++)
+
+		{
+
+			if (img[img.length() - 1 - i] == temp_char[j])
+
+			{
+
+				flag = false;
+
+				break;
+
+			}
+
+		}
+
+
+
+		if (flag)
+
+		{
+
+			table[i] = i;
+
+			temp_char[counter] = img[img.length() - 1 - i];
+
+			counter++;
+
+		}
+
+	}
+
+
+
+	unsigned int temp = img.length() - 1;
+
+	for (int i = 0; i < str.length() - img.length() + 1; i++)
+
+	{
+
+		if (str[i + temp] != img[temp])
+
+		{
+
+			
+
+			int j = 1;
+
+			bool flag = false;
+
+			while (table[j] > 0 && table[j] < img.length())
+
+			{
+
+				if (temp_char[j] == str[i + temp])
+
+				{
+
+					j = table[j];
+
+					flag = true;
+
+					break;
+
+				}
+
+				j++;
+
+			}
+
+			if (!flag)
+
+				j = table[img.length() - 1 - temp];
+
+			
+
+			i += j - 1;
+
+			temp = img.length() - 1;
+
+		}
+
+		else
+
+		{
+
+			i--;
+
+			temp--;
+
+		}
+
+		if (img.length() == 1)
+
+			return i + 2;
+
+		if (temp == 0)
+
+			return i + 1;
+
+	}
+
+	return -1;
+
+}
